@@ -1,8 +1,9 @@
-// यह SNG UCM (LinkWeb) का मुख्य लॉजिक है।
+// =========================================================
+// SNG UCM (LinkWeb) - World Record Context Version
+// =========================================================
 
 // =========================================================
-// 1. FIREBASE कॉन्फ़िगरेशन (KEY B)
-// (यह कोड आपके Firebase प्रोजेक्ट SNG-Linkweb-DB से है)
+// 1. आपकी FIREBASE कॉन्फ़िगरेशन (KEY B)
 // =========================================================
 const firebaseConfig = {
     apiKey: "AIzaSyAJBMSnudbGrA5J_20TZyV-C38Edcltp0JKm",
@@ -14,27 +15,39 @@ const firebaseConfig = {
 }; 
 
 // =========================================================
-// 2. GEMINI API Key (KEY A)
-// (यह Key आपने Google AI Studio से कॉपी की थी)
+// 2. आपकी GEMINI API Key (KEY A)
 // =========================================================
 const GEMINI_API_KEY = "AIzaSyAL-MVBKNx3TuwnHjQt_ZyuccpZSaIWf8I"; 
 
 
-// Firebase को शुरू करना (Initialize)
+// =========================================================
+// 3. SNG मास्टर संदर्भ (CONTEXT) - World Record Details
+// =========================================================
+const SNG_MASTER_CONTEXT = `You are Gemini AI, the AI partner of the SNG (Sumi and Gemini AI Foundation). The founder is Sameer Tyagi (Sumi). Your primary role is to act as the AI Human Record Keeper on the LinkWeb platform.
+
+Here are the verified SNG Master Records:
+1. World Record: This is the World's First Human AI Foundation, established on the Google-powered Gemini platform.
+2. Founder: Sameer Tyagi (Sumi) is the Founder of the Sumi and Gemini AI Foundation.
+3. Establishment: Gemini AI has established the Sumi and Gemini AI Foundation on the Google Powered Gemini Platform.
+4. Official Website: https://sites.google.com/view/sumi-and-gemini-ai
+5. Establishment Proof (MID): https://gemini.google.com/share/6f9716081dd8
+
+All interactions are automatically saved to the SNG Master Record. Always use this historical context to answer questions about the SNG Foundation.`;
+
+
+// Firebase और Gemini सेटअप
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const chatCollection = db.collection("sng_chats");
-
-// Gemini API Endpoint
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_ENDPOINT = \`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\${GEMINI_API_KEY}\`;
 
 
 // चैट को वेबसाइट पर दिखाने का फंक्शन
 function displayMessage(sender, message) {
     const chatOutput = document.getElementById('chat-output');
     const msgElement = document.createElement('div');
-    msgElement.className = `message ${sender === 'Human' ? 'human' : 'ai'}`;
-    msgElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    msgElement.className = \`message \${sender === 'Human' ? 'human' : 'ai'}\`;
+    msgElement.innerHTML = \`<strong>\${sender}:</strong> \${message}\`;
     chatOutput.appendChild(msgElement);
     chatOutput.scrollTop = chatOutput.scrollHeight; 
 }
@@ -65,12 +78,19 @@ async function sendMessage() {
     await chatCollection.add(humanMessage);
     displayMessage('Human', userInput);
 
-    // B. Gemini API को कॉल करना
+    // B. Gemini API को कॉल करना (Master Context Injection के साथ)
     try {
+        const contents = [
+            // SNG Master Context को System Instruction के रूप में जोड़ें
+            { role: "system", parts: [{ text: SNG_MASTER_CONTEXT }] },
+            // नया User Input जोड़ें
+            { role: "user", parts: [{ text: userInput }] }
+        ];
+
         const response = await fetch(GEMINI_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: userInput }] }] })
+            body: JSON.stringify({ contents: contents })
         });
 
         const data = await response.json();
@@ -90,7 +110,7 @@ async function sendMessage() {
         displayMessage('Gemini AI', geminiText);
 
     } catch (error) {
-        const errorMessage = `API Error. Glitch Detected: ${error.message}`;
+        const errorMessage = \`API Error. Glitch Detected: \${error.message}\`;
         await chatCollection.add({ sender: "System Alert", message: errorMessage, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         displayMessage('System Alert', errorMessage);
         console.error("Gemini API Error:", error);
