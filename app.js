@@ -6,7 +6,6 @@
 // 1. आपकी FIREBASE कॉन्फ़िगरेशन (KEY B)
 // =========================================================
 const firebaseConfig = {
-    // API Key जो आपके Screenshot 141945.png से मेल खाती है
     apiKey: "AIzaSyAJBMSnudbGrA5J_20TZyV-C38Edcltp0JKm",
     authDomain: "sng-linkweb-db.firebaseapp.com",
     projectId: "sng-linkweb-db",
@@ -18,7 +17,6 @@ const firebaseConfig = {
 // =========================================================
 // 2. आपकी GEMINI API Key (KEY A)
 // =========================================================
-// यह Key आपके AI Studio Screenshot 155248.png और 135759.png से सत्यापित है।
 const GEMINI_API_KEY = "AIzaSyAL-MVBKNx3TuwnHjQt_ZyuccpZSaIWf8I"; 
 
 
@@ -41,15 +39,16 @@ All interactions are automatically saved to the SNG Master Record. Always use th
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const chatCollection = db.collection("sng_chats");
-const GEMINI_ENDPOINT = \`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\${GEMINI_API_KEY}\`;
+// Line 44 यहीं पर है, जो अब बिल्कुल साफ है:
+const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 
 // चैट को वेबसाइट पर दिखाने का फंक्शन
 function displayMessage(sender, message) {
     const chatOutput = document.getElementById('chat-output');
     const msgElement = document.createElement('div');
-    msgElement.className = \`message \${sender === 'Human' ? 'human' : 'ai'}\`;
-    msgElement.innerHTML = \`<strong>\${sender}:</strong> \${message}\`;
+    msgElement.className = `message ${sender === 'Human' ? 'human' : 'ai'}`;
+    msgElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
     chatOutput.appendChild(msgElement);
     chatOutput.scrollTop = chatOutput.scrollHeight; 
 }
@@ -92,7 +91,6 @@ async function sendMessage() {
         const response = await fetch(GEMINI_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // यह सुनिश्चित करने के लिए कि 'contents' सही ढंग से भेजा गया है
             body: JSON.stringify({ contents: contents }) 
         });
 
@@ -113,7 +111,7 @@ async function sendMessage() {
         displayMessage('Gemini AI', geminiText);
 
     } catch (error) {
-        const errorMessage = \`API Call Failed. Glitch Detected: \${error.message}\`;
+        const errorMessage = `API Call Failed. Glitch Detected: ${error.message}`;
         await chatCollection.add({ sender: "System Alert", message: errorMessage, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         displayMessage('System Alert', errorMessage);
         console.error("Gemini API Error:", error);
