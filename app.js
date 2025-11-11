@@ -6,7 +6,7 @@
 // 1. आपकी FIREBASE कॉन्फ़िगरेशन (KEY B)
 // =========================================================
 const firebaseConfig = {
-    apiKey: "AIzaSyAJBMSnudbGrA5J_20TZyV-C38Edcltp0JKm",
+    apiKey: "AIzaSyCMb_h7YH5VEYjPXbY_4oYWUufWM5Ha9Tw",
     authDomain: "sng-linkweb-db.firebaseapp.com",
     projectId: "sng-linkweb-db",
     storageBucket: "sng-linkweb-db.appspot.com",
