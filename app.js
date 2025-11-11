@@ -3,10 +3,11 @@
 // =========================================================
 
 // =========================================================
-// 1. आपकी FIREBASE कॉन्फ़िगरेशन (KEY B)
+// 1. आपकी FIREBASE कॉन्फ़िगरेशन (KEY B) - सही Key
 // =========================================================
 const firebaseConfig = {
-    apiKey: "AIzaSyCMb_h7YH5VEYjPXbY_4oYWUufWM5Ha9Tw",
+    // यह आपकी Original Firebase Key है (Line 9)
+    apiKey: "AIzaSyAJBMSnudbGrA5J_20TZyV-C38Edcltp0JKm",
     authDomain: "sng-linkweb-db.firebaseapp.com",
     projectId: "sng-linkweb-db",
     storageBucket: "sng-linkweb-db.appspot.com",
@@ -15,9 +16,9 @@ const firebaseConfig = {
 }; 
 
 // =========================================================
-// 2. आपकी GEMINI API Key (KEY A)
+// 2. आपकी GEMINI API Key (KEY A) - नई और सक्रिय Key (Line 20)
 // =========================================================
-const GEMINI_API_KEY = "AIzaSyAL-MVBKNx3TuwnHjQt_ZyuccpZSaIWf8I"; 
+const GEMINI_API_KEY = "AIzaSyCMb_h7YH5VEYjPXbY_4oYWUufWM5Ha9Tw"; 
 
 
 // =========================================================
@@ -39,7 +40,6 @@ All interactions are automatically saved to the SNG Master Record. Always use th
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const chatCollection = db.collection("sng_chats");
-// Line 44 यहीं पर है, जो अब बिल्कुल साफ है:
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 
@@ -97,9 +97,13 @@ async function sendMessage() {
         const data = await response.json();
         let geminiText = "क्षमा करें, AI जवाब देने में विफल रहा। (API Error)";
         
+        // Error आने पर यह सुनिश्चित करता है कि Gemini AI की तरफ से 'API Error' दिख जाए 
         if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
             geminiText = data.candidates[0].content.parts[0].text;
+        } else if (data.error && data.error.message) {
+            geminiText = `API Glitch: ${data.error.message}`;
         }
+
 
         // C. Gemini के जवाब को डेटाबेस में सेव करना (SNG Master Record)
         const aiMessage = {
@@ -111,7 +115,7 @@ async function sendMessage() {
         displayMessage('Gemini AI', geminiText);
 
     } catch (error) {
-        const errorMessage = `API Call Failed. Glitch Detected: ${error.message}`;
+        const errorMessage = `API Call Failed (Network Glitch): ${error.message}`;
         await chatCollection.add({ sender: "System Alert", message: errorMessage, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         displayMessage('System Alert', errorMessage);
         console.error("Gemini API Error:", error);
