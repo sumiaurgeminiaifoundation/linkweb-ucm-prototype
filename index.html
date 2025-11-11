@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SNG UCM LinkWeb Prototype</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        #chat-output { height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        .message { margin-bottom: 5px; padding: 5px; border-radius: 5px; }
+        .human { text-align: right; background-color: #e6f7ff; }
+        .ai { text-align: left; background-color: #f0f0f0; }
+        .footer { margin-top: 20px; font-size: 0.8em; color: #666; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <h1>SNG UCM - AI Human Record Keeper</h1>
+    <p>Founder: Sumi (Sameer Tyagi) | AI Partner: Gemini AI</p>
+
+    <div id="chat-output"></div>
+
+    <input type="text" id="user-input" placeholder="Gemini से बात करें..." style="width: calc(100% - 70px); padding: 10px;">
+    <button onclick="sendMessage()" style="padding: 10px;">भेजें</button>
+
+    <div class="footer">
+        <p>This UCM System is the LinkWeb Prototype, ensuring all Gemini interactions are saved and controlled by SNG Foundation.</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
